@@ -13,9 +13,10 @@ public class PersonDAOImpl implements PersonDAO {
 
     private static final String CREATE_PERSON = "INSERT INTO person (name,address,age) VALUES (?,?,?)";
     private static final String FIND_ALL_PERSON = "SELECT * FROM person";
+    private static final String FIND_BY_ID = "SELECT * FROM person WHERE id =? ";
     private JDBCConnector connector;
 
-    public PersonDAOImpl(JDBCConnector connector){
+    public PersonDAOImpl(JDBCConnector connector) {
         this.connector = connector;
     }
 
@@ -23,12 +24,12 @@ public class PersonDAOImpl implements PersonDAO {
     @Override
     public List<Person> findAll() {
         List<Person> personList = new ArrayList<>();
-        try(Connection connection = connector.getConnection();
-            Statement statement = connection.createStatement()) {
+        try (Connection connection = connector.getConnection();
+             Statement statement = connection.createStatement()) {
 
             ResultSet resultSet = statement.executeQuery(FIND_ALL_PERSON);
 
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 Person person = new Person();
                 person.setId(resultSet.getInt("id"));
                 person.setName(resultSet.getString("name"));
@@ -45,19 +46,35 @@ public class PersonDAOImpl implements PersonDAO {
 
     @Override
     public Optional<Person> findByID(int id) {
-        return Optional.empty();
+        Person person = new Person();
+        try (Connection connection = connector.getConnection();
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
+            statement.setInt(1,id);
+            ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    person.setId(resultSet.getInt("id"));
+                    person.setName(resultSet.getString("name"));
+                    person.setAdress(resultSet.getString("address"));
+                    person.setAge(resultSet.getInt("age"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Optional.of(person);
     }
 
     @Override
     public boolean create(Person entity) {
-        try(Connection connection1 = connector.getConnection();
-            PreparedStatement statement = connection1.prepareStatement(CREATE_PERSON, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection1 = connector.getConnection();
+             PreparedStatement statement = connection1.prepareStatement(CREATE_PERSON, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(1,entity.getName());
-            statement.setString(2,entity.getAdress());
-            statement.setInt(3,entity.getAge());
+            statement.setString(1, entity.getName());
+            statement.setString(2, entity.getAdress());
+            statement.setInt(3, entity.getAge());
 
-          return statement.executeUpdate() == 1;
+            return statement.executeUpdate() == 1;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

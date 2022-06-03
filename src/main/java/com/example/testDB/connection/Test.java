@@ -13,7 +13,9 @@ public class Test {
 
         Person person = new Person("Pavel", "Minsk", 22);
         /*personDAO.create(person);*/
-        personDAO.findAll().forEach(System.out::println);
+        /*personDAO.findAll().forEach(System.out::println);*/
+        /*System.out.println(personDAO.findByID(4));*/
+
 
 
         /*personDAO.create(person);*/
