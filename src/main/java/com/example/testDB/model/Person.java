@@ -47,6 +47,13 @@ public class Person {
         this.age = age;
     }
 
+    public Person(int id, String name, String address, int age) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.age = age;
+    }
+
     @Override
     public String toString() {
         return "Person{" +

@@ -13,7 +13,8 @@ public class PersonDAOImpl implements PersonDAO {
 
     private static final String CREATE_PERSON = "INSERT INTO person (name,address,age) VALUES (?,?,?)";
     private static final String FIND_ALL_PERSON = "SELECT * FROM person";
-    private static final String FIND_BY_ID = "SELECT * FROM person WHERE id =? ";
+    private static final String FIND_BY_ID = "SELECT * FROM person WHERE id = ? ";
+    private static final String USER_UPDATE = "UPDATE person SET name = ?, address = ?, age = ? WHERE id = ?";
     private JDBCConnector connector;
 
     public PersonDAOImpl(JDBCConnector connector) {
@@ -49,13 +50,13 @@ public class PersonDAOImpl implements PersonDAO {
         Person person = new Person();
         try (Connection connection = connector.getConnection();
              PreparedStatement statement = connection.prepareStatement(FIND_BY_ID)) {
-            statement.setInt(1,id);
+            statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    person.setId(resultSet.getInt("id"));
-                    person.setName(resultSet.getString("name"));
-                    person.setAdress(resultSet.getString("address"));
-                    person.setAge(resultSet.getInt("age"));
+            while (resultSet.next()) {
+                person.setId(resultSet.getInt("id"));
+                person.setName(resultSet.getString("name"));
+                person.setAdress(resultSet.getString("address"));
+                person.setAge(resultSet.getInt("age"));
             }
 
         } catch (SQLException e) {
@@ -83,16 +84,28 @@ public class PersonDAOImpl implements PersonDAO {
 
     @Override
     public boolean update(Person entity) {
-        return false;
-    }
+        try (Connection connection = connector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(USER_UPDATE)) {
+            preparedStatement.setString(1,entity.getName());
+            preparedStatement.setString(2,entity.getAdress());
+            preparedStatement.setInt(3,entity.getAge());
+            preparedStatement.setInt(4,entity.getId());
+
+            System.out.println("Данные пользователя успешно изменены.");
+            return preparedStatement.executeUpdate() == 1;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }       //to do
 
     @Override
-    public boolean deleteByID(int id) {
+    public boolean deleteByID(int id) {         //to do
         return false;
     }
 
     @Override
     public List<Person> findByName(String name) {
         return null;
-    }
+    }      //to do
 }

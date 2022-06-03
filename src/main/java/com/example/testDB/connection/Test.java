@@ -3,8 +3,6 @@ package com.example.testDB.connection;
 import com.example.testDB.model.Person;
 import com.example.testDB.repository.impl.PersonDAOImpl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class Test {
     public static void main(String[] args) {
@@ -15,7 +13,8 @@ public class Test {
         /*personDAO.create(person);*/
         /*personDAO.findAll().forEach(System.out::println);*/
         /*System.out.println(personDAO.findByID(4));*/
-
+        Person person1 = new Person(1,"Pablo","Minsk",26);
+        personDAO.update(person1);
 
 
         /*personDAO.create(person);*/
