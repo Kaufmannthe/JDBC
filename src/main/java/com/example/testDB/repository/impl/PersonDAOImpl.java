@@ -15,6 +15,8 @@ public class PersonDAOImpl implements PersonDAO {
     private static final String FIND_ALL_PERSON = "SELECT * FROM person";
     private static final String FIND_BY_ID = "SELECT * FROM person WHERE id = ? ";
     private static final String USER_UPDATE = "UPDATE person SET name = ?, address = ?, age = ? WHERE id = ?";
+    private static final String DELETE_BY_ID ="DELETE FROM person WHERE id = ?";
+    private static final String FIND_BY_NAME ="SELECT * FROM person WHERE name = ?";
     private JDBCConnector connector;
 
     public PersonDAOImpl(JDBCConnector connector) {
@@ -91,21 +93,52 @@ public class PersonDAOImpl implements PersonDAO {
             preparedStatement.setInt(3,entity.getAge());
             preparedStatement.setInt(4,entity.getId());
 
-            System.out.println("Данные пользователя успешно изменены.");
+            System.out.print("Результат изменения данных: ");
             return preparedStatement.executeUpdate() == 1;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }       //to do
+    }
 
     @Override
-    public boolean deleteByID(int id) {         //to do
-        return false;
+    public boolean deleteByID(int id) {
+        try(Connection connection = connector.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(DELETE_BY_ID)) {
+
+            preparedStatement.setInt(1,id);
+            preparedStatement.executeUpdate();
+
+            System.out.print("Результат удаления пользователя: " );
+            return preparedStatement.executeUpdate() == 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public List<Person> findByName(String name) {
-        return null;
-    }      //to do
+        List <Person> personList = new ArrayList<>();
+        try(Connection connection = connector.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_NAME)) {
+            preparedStatement.setString(1,name);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                Person person = new Person();
+                person.setId(resultSet.getInt("id"));
+                person.setName(resultSet.getString("name"));
+                person.setAdress(resultSet.getString("address"));
+                person.setAge(resultSet.getInt("age"));
+                personList.add(person);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return personList;
+    }
 }
